@@ -2,8 +2,6 @@
 
 一个可持续对话的语义数据分析助手：将自然语言问题转换为只读 SQL，并在连续追问中保留指标、时间、维度和过滤条件。
 
-本项目基于 [AI Agents From Zero](https://didilili.github.io/ai-agents-from-zero) 的工程思路改造与扩展，现以独立的 Insight Query Agent 维护。
-
 ![Insight Query Agent 控制台预览](docs/images/insight-query-console.png)
 
 ## 核心能力
@@ -48,7 +46,7 @@ pnpm --dir frontend dev
 
 在 `.env` 配置 `LLM_API_KEY` 后访问 `http://localhost:5173`。公开部署前请用密钥管理服务替代本地数据库密码，并确保数仓账户只读。
 
-## GitHub 质量门禁
+## 开发检查
 
 ```bash
 uv run ruff check .
@@ -64,3 +62,7 @@ pnpm --dir frontend build
 ## License
 
 MIT，详见 [LICENSE](LICENSE)。
+
+## Acknowledgements
+
+本项目的早期智能问数工程原型参考了 [AI Agents From Zero](https://didilili.github.io/ai-agents-from-zero)。本项目已围绕连续语义数据分析场景，独立重构了产品定位、会话状态管理、混合检索策略、Schema 依赖扩展、SQL 闭环与交互文案。
