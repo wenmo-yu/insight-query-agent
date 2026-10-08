@@ -4,6 +4,8 @@
 
 本项目基于 [AI Agents From Zero](https://didilili.github.io/ai-agents-from-zero) 的工程思路改造与扩展，现以独立的 Insight Query Agent 维护。
 
+![Insight Query Agent 控制台预览](docs/images/insight-query-console.png)
+
 ## 核心能力
 
 - **连续问数**：短期 Memory 和 `StructuredQueryState` 保存会话中的指标、时间、维度、筛选、排序与 Top-N。
