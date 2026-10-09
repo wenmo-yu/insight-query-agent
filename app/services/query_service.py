@@ -13,6 +13,7 @@ from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from app.agent.context import DataAgentContext
 from app.agent.graph import graph
 from app.agent.state import DataAgentState
+from app.clients.reranker_client import RerankerClient
 from app.repositories.es.value_es_repository import ValueESRepository
 from app.repositories.mysql.dw.dw_mysql_repository import DWMySQLRepository
 from app.repositories.mysql.meta.meta_mysql_repository import MetaMySQLRepository
@@ -28,6 +29,7 @@ class QueryService:
         self,
         meta_mysql_repository: MetaMySQLRepository,
         embedding_client: HuggingFaceEndpointEmbeddings,
+        reranker_client: RerankerClient,
         dw_mysql_repository: DWMySQLRepository,
         column_qdrant_repository: ColumnQdrantRepository,
         metric_qdrant_repository: MetricQdrantRepository,
@@ -39,6 +41,7 @@ class QueryService:
 
         # 召回链路依赖的向量检索、Embedding 和全文检索能力由依赖层注入
         self.embedding_client = embedding_client
+        self.reranker_client = reranker_client
         self.column_qdrant_repository = column_qdrant_repository
         self.metric_qdrant_repository = metric_qdrant_repository
         self.value_es_repository = value_es_repository
@@ -53,6 +56,7 @@ class QueryService:
         context = DataAgentContext(
             column_qdrant_repository=self.column_qdrant_repository,
             embedding_client=self.embedding_client,
+            reranker_client=self.reranker_client,
             metric_qdrant_repository=self.metric_qdrant_repository,
             value_es_repository=self.value_es_repository,
             meta_mysql_repository=self.meta_mysql_repository,

@@ -17,6 +17,7 @@ from app.clients.mysql_client_manager import (
     meta_mysql_client_manager,
 )
 from app.clients.qdrant_client_manager import qdrant_client_manager
+from app.clients.reranker_client_manager import reranker_client_manager
 
 
 @asynccontextmanager
@@ -26,6 +27,7 @@ async def lifespan(app: FastAPI):
     # 启动阶段：先建立各类外部服务客户端，后续依赖函数会从 manager 中取已初始化对象
     qdrant_client_manager.init()
     embedding_client_manager.init()
+    reranker_client_manager.init()
     es_client_manager.init()
     meta_mysql_client_manager.init()
     dw_mysql_client_manager.init()
@@ -38,3 +40,4 @@ async def lifespan(app: FastAPI):
     await es_client_manager.close()
     await meta_mysql_client_manager.close()
     await dw_mysql_client_manager.close()
+    await reranker_client_manager.close()

@@ -8,7 +8,7 @@
 
 - **连续问数**：短期 Memory 和 `StructuredQueryState` 保存会话中的指标、时间、维度、筛选、排序与 Top-N。
 - **状态可视化**：前端侧栏实时展示本轮分析状态，明确 AI 会继承的上下文。
-- **Dense + Sparse Hybrid Retrieval**：Qdrant 语义候选结合词项重排，并根据问题复杂度动态调整 Top-K。
+- **Dense Retrieval + Reranker**：Qdrant 先召回语义候选，再由 Cross-Encoder Reranker 精排，并根据问题复杂度动态调整 Top-K。
 - **Elasticsearch Value Retrieval**：检索真实字段取值，降低筛选条件的值域幻觉。
 - **Schema Dependency Expansion**：补齐指标依赖字段、时间字段和主外键 Join Key，再进入 SQL 生成闭环。
 - **可观察执行**：FastAPI SSE 流式返回检索、生成、校验和执行进度。
@@ -20,7 +20,7 @@ React Console ── session_id ──> FastAPI / SSE
                                   │
                     Memory + StructuredQueryState
                                   │
-Query expansion ─> Qdrant dense + sparse rerank ─┐
+Query expansion ─> Qdrant dense + Cross-Encoder rerank ─┐
 ES value retrieval ───────────────────────────────┼─> schema expansion ─> SQL loop
                                                    ┘
 ```
@@ -45,6 +45,8 @@ pnpm --dir frontend dev
 ```
 
 在 `.env` 配置 `LLM_API_KEY` 后访问 `http://localhost:5173`。公开部署前请用密钥管理服务替代本地数据库密码，并确保数仓账户只读。
+
+首次启动还需要准备 `docker/embedding/bge-reranker-v2-m3` 中的 `BAAI/bge-reranker-v2-m3` 模型文件；Reranker 服务将运行在 `http://localhost:8082/rerank`。
 
 ## 开发检查
 

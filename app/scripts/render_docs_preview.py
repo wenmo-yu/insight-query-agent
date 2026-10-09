@@ -4,7 +4,6 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "docs" / "images" / "insight-query-console.png"
 
@@ -42,7 +41,7 @@ def main() -> None:
             x += len(value) * 22 + 36
         y += 44
     draw.text((28, 485), "RETRIEVAL PIPELINE", font=font(11, True), fill="#7d786f")
-    draw.multiline_text((28, 510), "Dense + Sparse\nValue retrieval\nSchema dependency expansion", font=font(14), fill="#77736c", spacing=12)
+    draw.multiline_text((28, 510), "Dense + Reranker\nValue retrieval\nSchema dependency expansion", font=font(14), fill="#77736c", spacing=12)
     draw.line((310, 84, 1440, 84), fill="#d4cbc0")
     draw.text((382, 25), "Insight Query Agent", font=font(18, True), fill="#20201d")
     draw.text((382, 52), "Hybrid retrieval · Stateful analytics", font=font(13), fill="#77736c")
@@ -52,7 +51,7 @@ def main() -> None:
     draw.text((382, 225), "让每一次追问，", font=font(49, True), fill="#20201d")
     draw.text((382, 290), "都延续正确的分析上下文。", font=font(49, True), fill="#20201d")
     draw.multiline_text((382, 380), "将业务自然语言映射为可靠的 SQL：自动融合指标、时间、维度与筛选条件，\n并用混合检索和 Schema 依赖扩展降低语义偏差。", font=font(17), fill="#706d66", spacing=10)
-    cards = [("⌁", "混合检索", "Dense + Sparse 重排，\n动态选择召回范围。"), ("◫", "连续上下文", "会话状态持续维护指标\n和过滤条件。"), ("⌘", "SQL 闭环", "生成、校验、修正、执行\n全程可观测。")]
+    cards = [("⌁", "Dense + Reranker", "Cross-Encoder 精排，\n动态选择召回范围。"), ("◫", "连续上下文", "会话状态持续维护指标\n和过滤条件。"), ("⌘", "SQL 闭环", "生成、校验、修正、执行\n全程可观测。")]
     x = 382
     for icon, title, desc in cards:
         draw.rectangle((x, 500, x + 280, 650), fill="#fffdf9", outline="#d4cbc0")

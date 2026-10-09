@@ -33,6 +33,12 @@ embedding:
   port: 8081
   model: BAAI/bge-large-zh-v1.5
 
+reranker:
+  host: localhost
+  port: 8082
+  model: BAAI/bge-reranker-v2-m3
+  timeout_seconds: 15
+
 es:
   host: localhost
   port: 9200

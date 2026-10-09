@@ -61,6 +61,20 @@ services:
     volumes:
       - ./embedding/bge-large-zh-v1.5:/models/bge-large-zh-v1.5
 
+  reranker:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.8
+    platform: linux/amd64
+    container_name: insight-reranker
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    environment:
+      MODEL_ID: /models/bge-reranker-v2-m3
+      MAX_CONCURRENT_REQUESTS: "16"
+      MAX_BATCH_TOKENS: "16384"
+    volumes:
+      - ./embedding/bge-reranker-v2-m3:/models/bge-reranker-v2-m3
+
 volumes:
   mysql_data:
   es_data:

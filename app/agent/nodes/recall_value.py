@@ -12,7 +12,7 @@ from langgraph.runtime import Runtime
 
 from app.agent.context import DataAgentContext
 from app.agent.llm import llm
-from app.agent.retrieval import dynamic_top_k, hybrid_rank
+from app.agent.retrieval import dynamic_top_k
 from app.agent.state import DataAgentState
 from app.core.log import logger
 from app.entities.value_info import ValueInfo
@@ -61,12 +61,12 @@ async def recall_value(state: DataAgentState, runtime: Runtime[DataAgentContext]
                     value_infos_map[current_value_info.id] = current_value_info
 
         # 写回 state 的是去重后的字段值实体，后续合并节点再决定如何组织上下文
-        retrieved_value_infos = hybrid_rank(
-            query,
-            list(value_infos_map.values()),
-            lambda value: value.value,
-            top_k,
+        candidates = list(value_infos_map.values())
+        reranker_client = runtime.context["reranker_client"]
+        ranked_indexes = await reranker_client.rerank(
+            query, [item.value for item in candidates], top_k
         )
+        retrieved_value_infos = [candidates[index] for index in ranked_indexes]
         logger.info(f"检索到字段取值：{list(value_infos_map.keys())}")
         writer({"type": "progress", "step": step, "status": "success"})
         return {"retrieved_value_infos": retrieved_value_infos}

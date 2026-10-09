@@ -19,6 +19,8 @@ from app.clients.mysql_client_manager import (
     meta_mysql_client_manager,
 )
 from app.clients.qdrant_client_manager import qdrant_client_manager
+from app.clients.reranker_client import RerankerClient
+from app.clients.reranker_client_manager import reranker_client_manager
 from app.repositories.es.value_es_repository import ValueESRepository
 from app.repositories.mysql.dw.dw_mysql_repository import DWMySQLRepository
 from app.repositories.mysql.meta.meta_mysql_repository import MetaMySQLRepository
@@ -47,6 +49,12 @@ async def get_embedding_client() -> HuggingFaceEndpointEmbeddings:
     """获取应用启动阶段初始化好的 Embedding 客户端"""
 
     return embedding_client_manager.client
+
+
+async def get_reranker_client() -> RerankerClient:
+    """获取启动阶段初始化的 Cross-Encoder Reranker 客户端。"""
+
+    return reranker_client_manager.client
 
 
 async def get_dw_session():
@@ -89,6 +97,7 @@ async def get_query_service(
     embedding_client: Annotated[
         HuggingFaceEndpointEmbeddings, Depends(get_embedding_client)
     ],
+    reranker_client: Annotated[RerankerClient, Depends(get_reranker_client)],
     dw_mysql_repository: Annotated[DWMySQLRepository, Depends(get_dw_mysql_repository)],
     column_qdrant_repository: Annotated[
         ColumnQdrantRepository, Depends(get_column_qdrant_repository)
@@ -104,6 +113,7 @@ async def get_query_service(
     return QueryService(
         meta_mysql_repository=meta_mysql_repository,
         embedding_client=embedding_client,
+        reranker_client=reranker_client,
         dw_mysql_repository=dw_mysql_repository,
         column_qdrant_repository=column_qdrant_repository,
         metric_qdrant_repository=metric_qdrant_repository,

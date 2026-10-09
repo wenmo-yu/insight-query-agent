@@ -33,6 +33,7 @@ from app.clients.mysql_client_manager import (
     meta_mysql_client_manager,
 )
 from app.clients.qdrant_client_manager import qdrant_client_manager
+from app.clients.reranker_client_manager import reranker_client_manager
 from app.repositories.es.value_es_repository import ValueESRepository
 from app.repositories.mysql.dw.dw_mysql_repository import DWMySQLRepository
 from app.repositories.mysql.meta.meta_mysql_repository import MetaMySQLRepository
@@ -101,6 +102,7 @@ if __name__ == "__main__":
         # 多路召回和上下文补全会访问 Qdrant、Embedding、ES、Meta MySQL 和 DW MySQL
         qdrant_client_manager.init()
         embedding_client_manager.init()
+        reranker_client_manager.init()
         es_client_manager.init()
         meta_mysql_client_manager.init()
         dw_mysql_client_manager.init()
@@ -127,6 +129,7 @@ if __name__ == "__main__":
             context = DataAgentContext(
                 column_qdrant_repository=column_qdrant_repository,
                 embedding_client=embedding_client_manager.client,
+                reranker_client=reranker_client_manager.client,
                 metric_qdrant_repository=metric_qdrant_repository,
                 value_es_repository=value_es_repository,
                 meta_mysql_repository=meta_mysql_repository,
@@ -144,5 +147,6 @@ if __name__ == "__main__":
         await es_client_manager.close()
         await meta_mysql_client_manager.close()
         await dw_mysql_client_manager.close()
+        await reranker_client_manager.close()
 
     asyncio.run(test())

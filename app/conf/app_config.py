@@ -70,6 +70,16 @@ class EmbeddingConfig:
 
 
 @dataclass
+class RerankerConfig:
+    """Cross-Encoder reranker service configuration."""
+
+    host: str
+    port: int
+    model: str
+    timeout_seconds: float = 15.0
+
+
+@dataclass
 class ESConfig:
     """Elasticsearch 配置"""
 
@@ -96,6 +106,7 @@ class AppConfig:
     db_dw: DBConfig
     qdrant: QdrantConfig
     embedding: EmbeddingConfig
+    reranker: RerankerConfig
     es: ESConfig
     llm: LLMConfig
 

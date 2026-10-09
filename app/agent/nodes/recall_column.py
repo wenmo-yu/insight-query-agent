@@ -12,7 +12,7 @@ from langgraph.runtime import Runtime
 
 from app.agent.context import DataAgentContext
 from app.agent.llm import llm
-from app.agent.retrieval import dynamic_top_k, hybrid_rank
+from app.agent.retrieval import dynamic_top_k
 from app.agent.state import DataAgentState
 from app.core.log import logger
 from app.entities.column_info import ColumnInfo
@@ -63,12 +63,14 @@ async def recall_column(state: DataAgentState, runtime: Runtime[DataAgentContext
                     column_info_map[column_info.id] = column_info
 
         # 写回 state 的是去重后的 ColumnInfo 列表，不暴露 Qdrant 原始 point 结构
-        retrieved_column_infos = hybrid_rank(
+        candidates = list(column_info_map.values())
+        reranker_client = runtime.context["reranker_client"]
+        ranked_indexes = await reranker_client.rerank(
             query,
-            list(column_info_map.values()),
-            lambda column: " ".join([column.name, column.description, *column.alias]),
+            [" ".join([item.name, item.description, *item.alias]) for item in candidates],
             top_k,
         )
+        retrieved_column_infos = [candidates[index] for index in ranked_indexes]
 
         writer({"type": "progress", "step": step, "status": "success"})
         return {"retrieved_column_infos": retrieved_column_infos}

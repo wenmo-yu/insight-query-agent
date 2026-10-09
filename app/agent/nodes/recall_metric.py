@@ -12,7 +12,7 @@ from langgraph.runtime import Runtime
 
 from app.agent.context import DataAgentContext
 from app.agent.llm import llm
-from app.agent.retrieval import dynamic_top_k, hybrid_rank
+from app.agent.retrieval import dynamic_top_k
 from app.agent.state import DataAgentState
 from app.core.log import logger
 from app.entities.metric_info import MetricInfo
@@ -63,12 +63,14 @@ async def recall_metric(state: DataAgentState, runtime: Runtime[DataAgentContext
                     metric_info_map[metric_info.id] = metric_info
 
         # 写回 state 的是业务实体列表，后续过滤节点不需要关心 Qdrant 原始 point 结构
-        retrieved_metric_infos = hybrid_rank(
+        candidates = list(metric_info_map.values())
+        reranker_client = runtime.context["reranker_client"]
+        ranked_indexes = await reranker_client.rerank(
             query,
-            list(metric_info_map.values()),
-            lambda metric: " ".join([metric.name, metric.description, *metric.alias]),
+            [" ".join([item.name, item.description, *item.alias]) for item in candidates],
             top_k,
         )
+        retrieved_metric_infos = [candidates[index] for index in ranked_indexes]
         logger.info(f"检索到指标信息：{list(metric_info_map.keys())}")
         writer({"type": "progress", "step": step, "status": "success"})
         return {"retrieved_metric_infos": retrieved_metric_infos}
