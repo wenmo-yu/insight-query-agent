@@ -30,7 +30,7 @@ async def generate_sql(state: DataAgentState, runtime: Runtime[DataAgentContext]
         metric_infos = state["metric_infos"]
         date_info = state["date_info"]
         db_info = state["db_info"]
-        query = state["query"]
+        query = state.get("analysis_query", state["query"])
         structured_query = state.get("structured_query", {})
         conversation_context = state.get("conversation_context", [])
 

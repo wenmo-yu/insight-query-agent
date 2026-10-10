@@ -23,6 +23,7 @@ from app.agent.nodes.merge_retrieved_info import merge_retrieved_info
 from app.agent.nodes.recall_column import recall_column
 from app.agent.nodes.recall_metric import recall_metric
 from app.agent.nodes.recall_value import recall_value
+from app.agent.nodes.report_sql_failure import report_sql_failure
 from app.agent.nodes.run_sql import run_sql
 from app.agent.nodes.validate_sql import validate_sql
 from app.agent.state import DataAgentState
@@ -56,6 +57,7 @@ graph_builder.add_node("generate_sql", generate_sql)
 graph_builder.add_node("validate_sql", validate_sql)
 graph_builder.add_node("correct_sql", correct_sql)
 graph_builder.add_node("run_sql", run_sql)
+graph_builder.add_node("report_sql_failure", report_sql_failure)
 
 # 从用户问题开始，先抽取关键词作为后续检索的基础
 graph_builder.add_edge(START, "extract_keywords")
@@ -80,14 +82,25 @@ graph_builder.add_edge("filter_metric", "add_extra_context")
 graph_builder.add_edge("add_extra_context", "generate_sql")
 graph_builder.add_edge("generate_sql", "validate_sql")
 
-# SQL 校验通过就直接执行，校验失败则先进入修正节点
+# SQL 校验失败时只允许一次修正；修正后的 SQL 必须重新通过预检查。
 graph_builder.add_conditional_edges(
     source="validate_sql",
-    path=lambda state: "run_sql" if state["error"] is None else "correct_sql",
-    path_map={"run_sql": "run_sql", "correct_sql": "correct_sql"},
+    path=lambda state: (
+        "run_sql"
+        if state["error"] is None
+        else "correct_sql"
+        if state.get("correction_attempts", 0) < 1
+        else "report_sql_failure"
+    ),
+    path_map={
+        "run_sql": "run_sql",
+        "correct_sql": "correct_sql",
+        "report_sql_failure": "report_sql_failure",
+    },
 )
-graph_builder.add_edge("correct_sql", "run_sql")
+graph_builder.add_edge("correct_sql", "validate_sql")
 graph_builder.add_edge("run_sql", END)
+graph_builder.add_edge("report_sql_failure", END)
 
 # 编译后的 graph 是对外使用的 Agent 执行入口
 graph = graph_builder.compile()

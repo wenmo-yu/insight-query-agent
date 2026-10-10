@@ -30,7 +30,9 @@ async def correct_sql(state: DataAgentState, runtime: Runtime[DataAgentContext])
         metric_infos = state["metric_infos"]
         date_info = state["date_info"]
         db_info = state["db_info"]
-        query = state["query"]
+        query = state.get("analysis_query", state["query"])
+        structured_query = state.get("structured_query", {})
+        conversation_context = state.get("conversation_context", [])
 
         # sql 是待修正的候选 SQL，error 是数据库 explain 返回的具体错误信息
         sql = state["sql"]
@@ -46,6 +48,8 @@ async def correct_sql(state: DataAgentState, runtime: Runtime[DataAgentContext])
                 "query",
                 "sql",
                 "error",
+                "structured_query",
+                "conversation_context",
             ],
         )
         # 修正后的输出仍然是一条纯 SQL 文本，用来覆盖 state["sql"]
@@ -66,12 +70,14 @@ async def correct_sql(state: DataAgentState, runtime: Runtime[DataAgentContext])
                 "query": query,
                 "sql": sql,
                 "error": error,
+                "structured_query": yaml.dump(structured_query, allow_unicode=True, sort_keys=False),
+                "conversation_context": yaml.dump(conversation_context, allow_unicode=True, sort_keys=False),
             }
         )
 
         logger.info(f"校正后的SQL：{result}")
         writer({"type": "progress", "step": step, "status": "success"})
-        return {"sql": result}
+        return {"sql": result, "correction_attempts": state.get("correction_attempts", 0) + 1}
     except Exception as e:
         logger.error(f"{step} failed: {e}")
         writer({"type": "progress", "step": step, "status": "error"})

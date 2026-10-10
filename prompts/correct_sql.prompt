@@ -16,6 +16,12 @@
 数据库环境如下：
 {db_info}
 
+本会话此前问题（仅在当前问题没有明确指定时参考）：
+{conversation_context}
+
+当前结构化分析状态：
+{structured_query}
+
 原始用户查询如下：
 {query}
 

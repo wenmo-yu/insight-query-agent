@@ -12,6 +12,7 @@
 - **Elasticsearch Value Retrieval**：检索真实字段取值，降低筛选条件的值域幻觉。
 - **Schema Dependency Expansion**：补齐指标依赖字段、时间字段和主外键 Join Key，再进入 SQL 生成闭环。
 - **可观察执行**：FastAPI SSE 流式返回检索、生成、校验和执行进度。
+- **受限 SQL 执行**：解析器仅放行单条 `SELECT`/`WITH` 查询；执行层有超时与返回行数上限，Docker 示例数仓账户仅授予 `SELECT` 权限。
 
 ## 架构
 
@@ -60,6 +61,8 @@ pnpm --dir frontend build
 ## 扩展建议
 
 本地的 `ConversationStateStore` 适用于单实例开发。生产多副本部署时，将其替换为带 TTL 的 Redis，同时保持 `session_id` API 契约即可。
+
+数仓执行账户应始终保持最小权限。`docker/mysql/dw.sql` 的权限变化只会应用于新初始化的数据卷；已有本地 MySQL 需由管理员撤销旧的写权限后重新授予 `SELECT`。
 
 ## License
 

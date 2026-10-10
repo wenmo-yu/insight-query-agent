@@ -80,3 +80,5 @@ class DataAgentState(TypedDict):
     # Browser-session memory is intentionally serializable so it can be shown and audited.
     conversation_context: list[str]
     structured_query: dict
+    analysis_query: str
+    correction_attempts: int
